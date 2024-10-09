@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "75765853136",
+    "project_id": "androidassignment2-65af6",
+    "storage_bucket": "androidassignment2-65af6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75765853136:android:02bde703e7ccdb3161a7d5",
+        "android_client_info": {
+          "package_name": "app.fatal.androidassignment_2_exercise_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEQxPUiLjjGh1jgYykfi6ieKaqDjwVJJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75765853136:android:a24c6dad0047bf5661a7d5",
+        "android_client_info": {
+          "package_name": "app.fatal.androidassignment_2_mini_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEQxPUiLjjGh1jgYykfi6ieKaqDjwVJJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
