@@ -15,6 +15,18 @@
         android:theme="@style/Theme.AndroidAssignment_2_Mini_Project"
         tools:targetApi="31">
         <activity
+            android:name=".playerActivities.PlayerHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".managerActivities.ManagerHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
