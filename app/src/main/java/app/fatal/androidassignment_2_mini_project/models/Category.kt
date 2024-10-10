@@ -1,7 +1,7 @@
 package app.fatal.androidassignment_2_mini_project.models
 
 enum class Category(val text: String, val id: Int) {
-    ANY("", 0),
+    ANY("Any", 0),
 
     GENERAL_KNOWLEDGE("General Knowledge", 9),
 
