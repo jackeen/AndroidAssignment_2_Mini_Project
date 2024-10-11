@@ -65,9 +65,10 @@ class ManagerHomeActivity : AppCompatActivity() {
 
         // list display
         recyclerView = findViewById(R.id.manager_home_recycler)
-        adapter = TournamentAdapter(listData, true, {}, {
+        adapter = TournamentAdapter(listData, true, {}, { id ->
             val intent = Intent(this@ManagerHomeActivity, TournamentFormActivity::class.java)
             intent.putExtra("isEdit", true)
+            intent.putExtra("id", id)
             startActivity(intent)
         })
         recyclerView.adapter = adapter

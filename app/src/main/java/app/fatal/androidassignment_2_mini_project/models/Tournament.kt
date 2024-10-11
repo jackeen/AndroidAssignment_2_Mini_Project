@@ -5,8 +5,8 @@ import java.util.Date
 data class Tournament (
     val id: String = "",
     val name: String = "",
-    val category: Category = Category.ANY,
-    val difficulty: Difficulty = Difficulty.ANY,
+    var category: Category = Category.ANY,
+    var difficulty: Difficulty = Difficulty.ANY,
     val type: Type = Type.BOOLEAN,
     val startDate: Date = Date(),
     val endDate: Date = Date(),

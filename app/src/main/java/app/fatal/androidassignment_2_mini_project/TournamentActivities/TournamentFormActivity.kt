@@ -9,6 +9,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -27,9 +28,14 @@ import com.android.volley.toolbox.Volley
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -39,7 +45,8 @@ class TournamentFormActivity : AppCompatActivity() {
     private lateinit var fireStore: FirebaseFirestore;
     private val collectionName = "tournaments"
 
-    private lateinit var currentData: Tournament
+    // for editing
+    private var currentData: Tournament = Tournament()
 
     private lateinit var progressIndicator: LinearProgressIndicator
     private lateinit var toolbar: Toolbar
@@ -64,11 +71,12 @@ class TournamentFormActivity : AppCompatActivity() {
 
         // get activity-between params for editing
         val isEdit = intent.getBooleanExtra("isEdit", false)
+        val tournamentId = intent.getStringExtra("id")
 
         // init firebase
         fireStore = FirebaseFirestore.getInstance()
 
-        // init components of UI
+        // init of objects of components from UI
         progressIndicator = findViewById(R.id.tournament_form_progress)
         toolbar = findViewById(R.id.tournament_form_toolbar)
         txtName = findViewById(R.id.tournament_form_name)
@@ -96,14 +104,6 @@ class TournamentFormActivity : AppCompatActivity() {
             currentCate = Category.entries[position]
         }
 
-        // pre-select
-//        let {
-//            val i = categoryIds.indexOf(31)
-//            val t = categoryTexts[i]
-//            selectorCategory.setText(t, false)
-//        }
-
-
         // Difficulty selector
         var currentDifficulty = Difficulty.ANY
         val difficultyTexts = Difficulty.entries.map { it.text }
@@ -115,16 +115,29 @@ class TournamentFormActivity : AppCompatActivity() {
         }
 
         // Date event
-        txtStartDate.setOnClickListener { showDatePicker(txtStartDate) }
-        txtEndDate.setOnClickListener { showDatePicker(txtEndDate) }
+        txtStartDate.setOnClickListener { showDatePicker(txtStartDate, currentData.startDate) }
+        txtEndDate.setOnClickListener { showDatePicker(txtEndDate, currentData.endDate) }
 
         // save and cancel btn event
         btnSave.setOnClickListener { save(isEdit, currentCate, currentDifficulty) }
         btnCancel.setOnClickListener { finish() }
+
+        // if edit tournament, to load current tournament
+        if (isEdit && tournamentId != null) {
+            loadTournament(tournamentId) { it ->
+                currentData = it
+                txtName.setText(it.name)
+                selectorCategory.setText(it.category.text, false)
+                selectorDifficulty.setText(it.difficulty.text, false)
+                txtStartDate.setText(getDateString(currentData.startDate))
+                txtEndDate.setText(getDateString(currentData.endDate))
+            }
+        }
     }
 
-    private fun showDatePicker(view: TextInputEditText) {
+    private fun showDatePicker(view: TextInputEditText, d: Date) {
         val calender = Calendar.getInstance()
+        calender.time = d
         val year = calender.get(Calendar.YEAR)
         val month = calender.get(Calendar.MONTH)
         val day = calender.get(Calendar.DAY_OF_MONTH)
@@ -142,13 +155,76 @@ class TournamentFormActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
+    private fun loadTournament(id: String, callback: (Tournament) -> Unit) {
+        progressIndicator.isIndeterminate = true
+        fireStore.collection(collectionName).document(id).get()
+            .addOnSuccessListener { doc ->
+                if (doc != null) {
+                    val tournament = doc.toObject<Tournament>(Tournament::class.java)
+                    if (tournament != null) {
+                        callback(tournament)
+                    }
+                    progressIndicator.isIndeterminate = false
+                }
+            }
+    }
+
+    private fun getDateString(d: Date): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return formatter.format(d)
+    }
+
     private fun save(isEdit: Boolean, cate: Category, difficulty: Difficulty) {
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val startDate = dateFormat.parse(txtStartDate.text.toString())
+        val endDate = dateFormat.parse(txtEndDate.text.toString())
+
         if (isEdit) {
 
+            val updateMap = hashMapOf<String, Any>()
+            val name = txtName.text.toString().trim()
+            if (name != currentData.name) {
+                updateMap["name"] = name
+            }
+            if (startDate != currentData.startDate) {
+                updateMap["startDate"] = startDate?:currentData.startDate
+            }
+            if (endDate != currentData.endDate) {
+                updateMap["endDate"] = endDate?:currentData.endDate
+            }
+            if (cate != currentData.category) {
+                updateMap["category"] = cate
+            }
+            if (difficulty != currentData.difficulty) {
+                updateMap["difficulty"] = difficulty
+            }
+
+            // regenerate questions
+            progressIndicator.isIndeterminate = true
+            val docRef = fireStore.collection(collectionName).document(currentData.id)
+            docRef.update(updateMap)
+                .addOnSuccessListener {
+                    if (cate != currentData.category || difficulty != currentData.difficulty) {
+                        currentData.category = cate
+                        currentData.difficulty = difficulty
+                        getQuestions { questionList ->
+                            docRef.update("questions", questionList)
+                                .addOnSuccessListener {
+                                    progressIndicator.isIndeterminate = false
+                                    finish()
+                                }
+                        }
+                    } else {
+                        progressIndicator.isIndeterminate = false
+                        finish()
+                    }
+                }
+
+
+
         } else {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val startDate = dateFormat.parse(txtStartDate.text.toString())
-            val endDate = dateFormat.parse(txtEndDate.text.toString())
+
             val data = Tournament(
                 name = txtName.text.toString().trim(),
                 category = cate,

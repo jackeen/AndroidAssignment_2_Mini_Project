@@ -18,8 +18,8 @@ class TournamentAdapter(
 
     private var data: List<Tournament>,
     private var canEdit: Boolean,
-    private val onAnswer: () -> Unit,
-    private val onEdit: () -> Unit
+    private val onAnswer: (String) -> Unit,
+    private val onEdit: (String) -> Unit
 
 ) : RecyclerView.Adapter<TournamentAdapter.TournamentHolder>() {
 
@@ -42,12 +42,18 @@ class TournamentAdapter(
         val d = data[position]
         if (d.difficulty == Difficulty.EASY) {
             holder.easySign.visibility = View.VISIBLE
+            holder.mediumSign.visibility = View.GONE
+            holder.hardSign.visibility = View.GONE
         }
         if (d.difficulty == Difficulty.MEDIUM) {
             holder.mediumSign.visibility = View.VISIBLE
+            holder.easySign.visibility = View.GONE
+            holder.hardSign.visibility = View.GONE
         }
         if (d.difficulty == Difficulty.HARD) {
             holder.hardSign.visibility = View.VISIBLE
+            holder.easySign.visibility = View.GONE
+            holder.mediumSign.visibility = View.GONE
         }
         holder.nameTxt.text = d.name
         holder.cateTxt.text = d.category.text
@@ -77,8 +83,8 @@ class TournamentAdapter(
         } else {
             holder.btnAnswer.visibility = View.VISIBLE
         }
-        holder.btnEdit.setOnClickListener { onEdit() }
-        holder.btnAnswer.setOnClickListener { onAnswer() }
+        holder.btnEdit.setOnClickListener { onEdit(d.id) }
+        holder.btnAnswer.setOnClickListener { onAnswer(d.id) }
     }
 
     inner class TournamentHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
