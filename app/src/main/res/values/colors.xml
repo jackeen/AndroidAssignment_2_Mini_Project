@@ -3,10 +3,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#CACACA</color>
+    <color name="light_grey">#F1F1F1</color>
     <color name="bg_dark">#058B9D</color>
     <color name="bg_dark_warm">#FF9800</color>
 
     <color name="hard">#F44336</color>
     <color name="medium">#FFC107</color>
     <color name="easy">#4CAF50</color>
+
+    <color name="right">#8BC34A</color>
+
 </resources>

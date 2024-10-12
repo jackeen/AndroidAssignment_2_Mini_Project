@@ -15,6 +15,9 @@
         android:theme="@style/Theme.AndroidAssignment_2_Mini_Project"
         tools:targetApi="31">
         <activity
+            android:name=".TournamentActivities.TournamentAnswerActivity"
+            android:exported="false" />
+        <activity
             android:name=".TournamentActivities.TournamentFormActivity"
             android:exported="false" />
         <activity
